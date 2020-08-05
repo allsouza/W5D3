@@ -53,6 +53,10 @@ class User
       SQL
     end
 
+    def save
+      self.id ? self.update : self.create
+    end
+
     def authored_questions
       Question.find_by_author_id(self.id)
     end

@@ -66,6 +66,10 @@ class Reply
       SQL
     end
 
+    def save
+      self.id ? self.update : self.create
+    end
+
     def author
         author = QuestionDBConnection.instance.execute(<<-SQL, self.user_id)
             SELECT
