@@ -1,5 +1,7 @@
 require_relative 'questions_db_connect'
 require_relative 'question'
+require_relative 'reply'
+require_relative 'question_follow'
 
 class User
     attr_accessor :id, :fname, :lname
@@ -57,5 +59,26 @@ class User
 
     def authored_replies
       Reply.find_by_user_id(self.id)
+    end
+
+    def followed_questions
+      QuestionFollow.followed_questions_for_user_id(self.id)
+    end
+
+    def liked_questions
+        QuestionLike.liked_questions_for_user_id(self.id)    
+    end
+
+    def average_karma
+      results = QuestionDBConnection.instance.execute(<<-SQL, self.id)
+        SELECT
+          COUNT(DISTINCT(questions.id)) AS questions, COUNT(questions.id) AS likes
+        FROM
+          questions
+          LEFT OUTER JOIN question_likes ON questions.id = question_likes.question_id
+        WHERE
+          questions.user_id = ?
+      SQL
+      results.first.values[1] / results.first.values[0].to_f
     end
 end
