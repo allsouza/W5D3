@@ -1,12 +1,27 @@
 require_relative 'questions_db_connect'
+require_relative 'god'
 require_relative 'user'
 require_relative 'question'
+require_relative 'question_follow'
+require_relative 'question_like'
 
-class Reply
+class Reply < God
     attr_accessor :id, :parent_id, :question_id, :user_id, :body
     def self.all
-      data = QuestionDBConnection.instance.execute("SELECT * FROM replies")
+      data = super('replies')
       data.map { |datum| Reply.new(datum) }
+    end
+
+    def self.find_by_id(id)
+      reply = super('replies', id)
+      return nil if reply.length < 1
+      Reply.new(reply.first)
+    end
+    
+    def self.where(options)
+      reply = super('replies', options)
+      raise "not in database" if reply.length < 1
+      Reply.new(reply.first)
     end
 
     def self.find_by_user_id(id)
@@ -36,7 +51,7 @@ class Reply
     end
 
     def initialize(options)
-        @id = options['id']
+        super(options['id'])
         @parent_id = options['parent_id']
         @question_id = options['question_id']
         @user_id = options['user_id']
@@ -64,10 +79,6 @@ class Reply
         WHERE
           id = ?
       SQL
-    end
-
-    def save
-      self.id ? self.update : self.create
     end
 
     def author

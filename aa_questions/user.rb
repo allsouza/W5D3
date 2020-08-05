@@ -1,13 +1,27 @@
 require_relative 'questions_db_connect'
+require_relative 'god'
 require_relative 'question'
 require_relative 'reply'
 require_relative 'question_follow'
+require_relative 'question_like'
 
-class User
+class User < God
     attr_accessor :id, :fname, :lname
     def self.all
-      data = QuestionDBConnection.instance.execute("SELECT * FROM users")
+      data = super('users')
       data.map { |datum| User.new(datum) }
+    end
+
+    def self.find_by_id(id)
+      user = super('users', id)
+      return nil if user.length < 1
+      User.new(user.first)
+    end
+
+    def self.where(options)
+      user = super('users', options)
+      raise "not in database" if user.length < 1
+      User.new(user.first)
     end
 
     def self.find_by_name(name)
@@ -25,7 +39,7 @@ class User
     end
 
     def initialize(options)
-        @id = options['id']
+        super(options['id'])
         @fname = options['fname']
         @lname = options['lname']
     end
@@ -51,10 +65,6 @@ class User
         WHERE
           id = ?
       SQL
-    end
-
-    def save
-      self.id ? self.update : self.create
     end
 
     def authored_questions
