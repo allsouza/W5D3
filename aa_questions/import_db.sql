@@ -22,6 +22,7 @@ CREATE TABLE questions (
 DROP TABLE if EXISTS question_follows;
 
 CREATE TABLE question_follows (
+    id INTEGER PRIMARY KEY,
     user_id INTEGER,
     question_id INTEGER,
     
@@ -39,12 +40,14 @@ CREATE TABLE replies (
     body TEXT NOT NULL,
 
     FOREIGN KEY (user_id) REFERENCES users(id),
-    FOREIGN KEY (question_id) REFERENCES questions(id)
+    FOREIGN KEY (question_id) REFERENCES questions(id),
+    FOREIGN KEY (parent_id) REFERENCES replies(id)
 );
 
 DROP TABLE if EXISTS question_likes;
 
 CREATE TABLE question_likes (
+    id INTEGER PRIMARY KEY,
     user_id INTEGER,
     question_id INTEGER,
 
